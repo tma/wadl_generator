@@ -1,6 +1,6 @@
 module WADL
   class Generator
-    VERSION = '0.1.0'
+    VERSION = '0.1.1'
     
     attr_reader :description, :options, :wadl
 
