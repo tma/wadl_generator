@@ -2,10 +2,10 @@ module WADL
   class Generator
     VERSION = '0.1.0'
     
-    attr_reader :description, :wadl
+    attr_reader :description, :options, :wadl
 
-    def initialize(description)
-      @description, @wadl = description, ''
+    def initialize(description, options = {})
+      @description, @options, @wadl = description, options, ''
     end
 
     def to_text
@@ -20,10 +20,14 @@ module WADL
       namespaces = {
         'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
         'xmlns:xsd' => 'http://www.w3.org/2001/XMLSchema',
-        'xsi:schemaLocation' => 'http://wadl.dev.java.net/2009/02 http://apigee.com/schemas/wadl-schema.xsd http://api.apigee.com/wadl/2010/07/ http://apigee.com/schemas/apigee-wadl-extensions.xsd',
-        'xmlns:apigee' => 'http://api.apigee.com/wadl/2010/07/',
+        'xsi:schemaLocation' => 'http://wadl.dev.java.net/2009/02',
         'xmlns' => 'http://wadl.dev.java.net/2009/02',
       }
+      
+      if options[:apigee]
+        namespaces['xmlns:apigee'] = 'http://api.apigee.com/wadl/2010/07/'
+        namespaces['xsi:schemaLocation'] << ' http://apigee.com/schemas/wadl-schema.xsd http://api.apigee.com/wadl/2010/07/ http://apigee.com/schemas/apigee-wadl-extensions.xsd'
+      end
 
       xml.application(namespaces) do
         xml.resources(:base => description[:base]) do
@@ -38,9 +42,11 @@ module WADL
               end
 
               xml.method('id' => name.pluralize.underscore, 'name' => 'GET') do
-                xml.tag!('apigee:tags') { xml.tag!('apigee:tag', name.singularize.camelcase, :primary => true) }
-                xml.tag!('apigee:authentication', :required => false)
-                xml.tag!('apigee:example', :url => "/#{name.pluralize.underscore}.#{config[:index_formats].keys.first}")
+                if options[:agigee]
+                  xml.tag!('apigee:tags') { xml.tag!('apigee:tag', name.singularize.camelcase, :primary => true) }
+                  xml.tag!('apigee:authentication', :required => false)
+                  xml.tag!('apigee:example', :url => "/#{name.pluralize.underscore}.#{config[:index_formats].keys.first}")
+                end
               end
             end
 
@@ -55,9 +61,11 @@ module WADL
               xml.param(:name => 'id', :type => 'xsd:string', :style => 'query', :required => true)
 
               xml.method('id' => name.singularize.underscore, 'name' => 'GET') do
-                xml.tag!('apigee:tags') { xml.tag!('apigee:tag', name.singularize.camelcase, :primary => true) }
-                xml.tag!('apigee:authentication', :required => false)
-                xml.tag!('apigee:example', :url => "/#{name.pluralize.underscore}/#{config[:example_id]}.#{config[:show_formats].keys.first}")
+                if options[:agigee]
+                  xml.tag!('apigee:tags') { xml.tag!('apigee:tag', name.singularize.camelcase, :primary => true) }
+                  xml.tag!('apigee:authentication', :required => false)
+                  xml.tag!('apigee:example', :url => "/#{name.pluralize.underscore}/#{config[:example_id]}.#{config[:show_formats].keys.first}")
+                end
               end
             end
           end
