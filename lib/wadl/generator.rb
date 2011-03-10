@@ -42,7 +42,7 @@ module WADL
               end
 
               xml.method('id' => name.pluralize.underscore, 'name' => 'GET') do
-                if options[:agigee]
+                if options[:apigee]
                   xml.tag!('apigee:tags') { xml.tag!('apigee:tag', name.singularize.camelcase, :primary => true) }
                   xml.tag!('apigee:authentication', :required => false)
                   xml.tag!('apigee:example', :url => "/#{name.pluralize.underscore}.#{config[:index_formats].keys.first}")
@@ -61,7 +61,7 @@ module WADL
               xml.param(:name => 'id', :type => 'xsd:string', :style => 'query', :required => true)
 
               xml.method('id' => name.singularize.underscore, 'name' => 'GET') do
-                if options[:agigee]
+                if options[:apigee]
                   xml.tag!('apigee:tags') { xml.tag!('apigee:tag', name.singularize.camelcase, :primary => true) }
                   xml.tag!('apigee:authentication', :required => false)
                   xml.tag!('apigee:example', :url => "/#{name.pluralize.underscore}/#{config[:example_id]}.#{config[:show_formats].keys.first}")
