@@ -1,6 +1,8 @@
+require 'builder'
+
 module WADL
   class Generator
-    VERSION = '0.1.1'
+    VERSION = '0.1.2'
     
     attr_reader :description, :options, :wadl
 
@@ -33,38 +35,42 @@ module WADL
         xml.resources(:base => description[:base]) do
           description[:resources].each do |name, config|
             # index
-            xml.resource(:path => "#{name.pluralize.underscore}.{format}") do
-              xml.param(:name => 'format', :type => 'xsd:string', :style => 'template',
-                  :required => true, :default => config[:index_formats].keys.first) do
-                config[:index_formats].each do |format, mime_type|
-                  xml.option(:value => format, :mediaType => mime_type)
+            if config[:index] && config[:index_formats].present?
+              xml.resource(:path => "#{name.pluralize.underscore}.{format}") do
+                xml.param(:name => 'format', :type => 'xsd:string', :style => 'template',
+                    :required => true, :default => config[:index_formats].keys.first) do
+                  config[:index_formats].each do |format, mime_type|
+                    xml.option(:value => format, :mediaType => mime_type)
+                  end
                 end
-              end
 
-              xml.method('id' => name.pluralize.underscore, 'name' => 'GET') do
-                if options[:apigee]
-                  xml.tag!('apigee:tags') { xml.tag!('apigee:tag', name.singularize.camelcase, :primary => true) }
-                  xml.tag!('apigee:authentication', :required => false)
-                  xml.tag!('apigee:example', :url => "/#{name.pluralize.underscore}.#{config[:index_formats].keys.first}")
+                xml.method('id' => name.pluralize.underscore, 'name' => 'GET') do
+                  if options[:apigee]
+                    xml.tag!('apigee:tags') { xml.tag!('apigee:tag', name.singularize.camelcase, :primary => true) }
+                    xml.tag!('apigee:authentication', :required => false)
+                    xml.tag!('apigee:example', :url => "/#{name.pluralize.underscore}.#{config[:index_formats].keys.first}")
+                  end
                 end
               end
             end
 
             # show
-            xml.resource(:path => "#{name.pluralize.underscore}/{id}.{format}") do
-              xml.param(:name => 'format', :type => 'xsd:string', :style => 'template',
-                  :required => true, :default => config[:show_formats].keys.first) do
-                config[:show_formats].each do |format, mime_type|
-                  xml.option(:value => format, :mediaType => mime_type)
+            if config[:show] && config[:show_formats].present?
+              xml.resource(:path => "#{name.pluralize.underscore}/{id}.{format}") do
+                xml.param(:name => 'format', :type => 'xsd:string', :style => 'template',
+                    :required => true, :default => config[:show_formats].keys.first) do
+                  config[:show_formats].each do |format, mime_type|
+                    xml.option(:value => format, :mediaType => mime_type)
+                  end
                 end
-              end
-              xml.param(:name => 'id', :type => 'xsd:string', :style => 'query', :required => true)
+                xml.param(:name => 'id', :type => 'xsd:string', :style => 'query', :required => true)
 
-              xml.method('id' => name.singularize.underscore, 'name' => 'GET') do
-                if options[:apigee]
-                  xml.tag!('apigee:tags') { xml.tag!('apigee:tag', name.singularize.camelcase, :primary => true) }
-                  xml.tag!('apigee:authentication', :required => false)
-                  xml.tag!('apigee:example', :url => "/#{name.pluralize.underscore}/#{config[:example_id]}.#{config[:show_formats].keys.first}")
+                xml.method('id' => name.singularize.underscore, 'name' => 'GET') do
+                  if options[:apigee]
+                    xml.tag!('apigee:tags') { xml.tag!('apigee:tag', name.singularize.camelcase, :primary => true) }
+                    xml.tag!('apigee:authentication', :required => false)
+                    xml.tag!('apigee:example', :url => "/#{name.pluralize.underscore}/#{config[:example_id]}.#{config[:show_formats].keys.first}")
+                  end
                 end
               end
             end

@@ -40,9 +40,11 @@
           :base => "#{request.url.gsub('/description.wadl', '')}",
           :resources => {
             'posts' => {
+              :index => true,
               :index_formats => {
                 :json => 'application/json',
               },
+              :show => true,
               :show_formats => {
                 :json => 'application/json',
                 :html => 'application/html',
@@ -50,6 +52,12 @@
               },
               :example_id => 28,
             },
+            'categories' => {
+              :index => true,
+              :index_formats => {
+                :json => 'application/json',
+              },
+            }
           }
         }
       end
