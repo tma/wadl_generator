@@ -1,0 +1,16 @@
+PATH
+  remote: .
+  specs:
+    wadl_generator (0.1.2)
+      builder
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    builder (3.0.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  wadl_generator!
